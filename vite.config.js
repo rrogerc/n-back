@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  base: '/n-back/',  // GitHub Pages base path
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
@@ -14,8 +15,8 @@ export default defineConfig({
         background_color: '#1a1a1a',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
-        scope: '/',
+        start_url: '/n-back/',
+        scope: '/n-back/',
         icons: [
           {
             src: 'icons/icon-192.png',

@@ -1,0 +1,45 @@
+/**
+ * Simple renderer for managing screen transitions
+ */
+export class Renderer {
+  constructor(container) {
+    this.container = container;
+    this.currentScreen = null;
+  }
+
+  /**
+   * Render a screen
+   * @param {object} screen - Screen object with render method
+   */
+  render(screen) {
+    // Cleanup previous screen if it has a cleanup method
+    if (this.currentScreen && this.currentScreen.cleanup) {
+      this.currentScreen.cleanup();
+    }
+
+    // Clear container
+    this.container.innerHTML = '';
+
+    // Render new screen
+    this.currentScreen = screen;
+    const content = screen.render();
+    if (typeof content === 'string') {
+      this.container.innerHTML = content;
+    } else if (content instanceof HTMLElement) {
+      this.container.appendChild(content);
+    }
+
+    // Call init if screen has it
+    if (screen.init) {
+      screen.init();
+    }
+  }
+
+  /**
+   * Get the container element
+   * @returns {HTMLElement}
+   */
+  getContainer() {
+    return this.container;
+  }
+}

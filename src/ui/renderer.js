@@ -8,13 +8,24 @@ export class Renderer {
   }
 
   /**
-   * Render a screen
+   * Render a screen with fade transition
    * @param {object} screen - Screen object with render method
    */
-  render(screen) {
+  async render(screen) {
     // Cleanup previous screen if it has a cleanup method
     if (this.currentScreen && this.currentScreen.cleanup) {
       this.currentScreen.cleanup();
+    }
+
+    // Animate out old content if present
+    const oldScreen = this.container.querySelector('.screen');
+    if (oldScreen) {
+      oldScreen.classList.add('screen-exit');
+      await new Promise(resolve => {
+        oldScreen.addEventListener('animationend', resolve, { once: true });
+        // Fallback timeout
+        setTimeout(resolve, 300);
+      });
     }
 
     // Clear container

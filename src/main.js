@@ -64,7 +64,7 @@ class App {
       }
     });
 
-    this.renderer.render(startScreen);
+    await this.renderer.render(startScreen);
   }
 
   /**
@@ -96,7 +96,7 @@ class App {
       onExit: () => this.exitGame()
     });
 
-    this.renderer.render(this.gameScreen);
+    await this.renderer.render(this.gameScreen);
 
     // Listen for game events
     this.gameEngine.addEventListener('trialStart', (e) => {
@@ -133,7 +133,7 @@ class App {
       });
 
       // Show results screen
-      this.showResultsScreen(result.results, n, result.nextLevel, trialCount);
+      await this.showResultsScreen(result.results, n, result.nextLevel, trialCount);
     }
   }
 
@@ -167,7 +167,7 @@ class App {
    * @param {number} nextLevel - Next N level
    * @param {number} trialCount - Number of trials used
    */
-  showResultsScreen(results, currentN, nextLevel, trialCount) {
+  async showResultsScreen(results, currentN, nextLevel, trialCount) {
     const resultsScreen = new ResultsScreen({
       results: results,
       currentN: currentN,
@@ -180,7 +180,7 @@ class App {
       }
     });
 
-    this.renderer.render(resultsScreen);
+    await this.renderer.render(resultsScreen);
   }
 
   /**

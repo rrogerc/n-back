@@ -1,14 +1,22 @@
 /* Base styles */
 :root {
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #2a2a2a;
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --accent: #4a90d9;
-  --accent-hover: #5aa0e9;
-  --success: #4caf50;
-  --error: #f44336;
-  --warning: #ff9800;
+  --bg-primary: #0f1117;
+  --bg-secondary: #1a1d27;
+  --bg-elevated: #242836;
+  --text-primary: #e8eaf0;
+  --text-secondary: rgba(232, 234, 240, 0.55);
+  --text-tertiary: rgba(232, 234, 240, 0.35);
+  --accent: #6b8afd;
+  --accent-hover: #8ba2ff;
+  --accent-glow: rgba(107, 138, 253, 0.15);
+  --accent-muted: rgba(107, 138, 253, 0.08);
+  --success: #34d399;
+  --error: #f87171;
+  --warning: #fbbf24;
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --transition-fast: 150ms;
+  --transition-normal: 250ms;
+  --transition-slow: 400ms;
 }
 
 * {
@@ -28,6 +36,7 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.5;
+  letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -35,10 +44,11 @@ body {
 
 #app {
   height: 100%;
-  height: 100dvh; /* actual visible viewport — fixes iOS standalone mode */
+  height: 100dvh;
   width: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 /* Screen base */
@@ -51,9 +61,38 @@ body {
   padding: 20px;
   padding-top: max(20px, env(safe-area-inset-top));
   padding-bottom: max(20px, env(safe-area-inset-bottom));
+  animation: screenFadeIn var(--transition-slow) ease-out;
 }
 
-/* Start Screen */
+.screen.screen-exit {
+  animation: screenFadeOut var(--transition-normal) ease-in forwards;
+}
+
+@keyframes screenFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes screenFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+/* ============================================
+   Start Screen
+   ============================================ */
 .start-screen {
   justify-content: center;
   align-items: center;
@@ -61,26 +100,37 @@ body {
 }
 
 .start-screen h1 {
-  font-size: 1.8rem;
-  margin-bottom: 0.25rem;
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.3rem;
+  animation: startFadeIn 500ms ease-out 0ms both;
 }
 
 .start-screen .subtitle {
   color: var(--text-secondary);
-  font-size: 0.85rem;
-  margin-bottom: 1.25rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  animation: startFadeIn 500ms ease-out 100ms both;
 }
 
 .level-selector {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  animation: startFadeIn 500ms ease-out 200ms both;
 }
 
-.level-selector label {
+.level-selector label,
+.trial-input-group label {
   display: block;
   margin-bottom: 0.25rem;
   color: var(--text-secondary);
-  font-size: 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .trial-input-group {
@@ -89,23 +139,34 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
+  animation: startFadeIn 500ms ease-out 250ms both;
 }
 
 .trial-input-group label {
-  color: var(--text-secondary);
-  font-size: 0.85rem;
+  display: inline;
+  margin-bottom: 0;
 }
 
 .trial-input-group input {
-  width: 70px;
-  padding: 0.4rem;
+  width: 64px;
+  padding: 0.5rem;
   font-size: 1rem;
+  font-weight: 600;
   text-align: center;
-  background: var(--bg-secondary);
-  border: 2px solid var(--accent);
-  border-radius: 8px;
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: 12px;
   color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  transition: border-color var(--transition-fast) ease,
+              box-shadow var(--transition-fast) ease;
   -moz-appearance: textfield;
+}
+
+.trial-input-group input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-muted);
 }
 
 .trial-input-group input::-webkit-outer-spin-button,
@@ -115,9 +176,10 @@ body {
 }
 
 .duration-estimate {
-  color: var(--text-secondary);
-  font-size: 0.8rem;
-  margin-bottom: 1.25rem;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  margin-bottom: 2rem;
+  animation: startFadeIn 500ms ease-out 300ms both;
 }
 
 .level-controls {
@@ -131,62 +193,82 @@ body {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 2px solid var(--accent);
-  background: transparent;
-  color: var(--accent);
-  font-size: 1.3rem;
-  font-weight: bold;
+  border: 1.5px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform var(--transition-fast) ease,
+              background var(--transition-fast) ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.level-btn:hover, .level-btn:active {
-  background: var(--accent);
-  color: var(--bg-primary);
+.level-btn:active {
+  transform: scale(0.9);
+  background: var(--accent-muted);
 }
 
 .level-value {
-  font-size: 2.2rem;
-  font-weight: bold;
+  font-size: 2.5rem;
+  font-weight: 700;
   width: 50px;
+  font-variant-numeric: tabular-nums;
 }
 
 .start-btn {
   background: var(--accent);
-  color: white;
+  color: #fff;
   border: none;
-  padding: 0.85rem 2rem;
-  font-size: 1.1rem;
-  border-radius: 8px;
+  padding: 0.9rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background 0.2s;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 24px rgba(107, 138, 253, 0.25);
+  transition: transform var(--transition-fast) ease,
+              box-shadow var(--transition-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+  animation: startFadeIn 500ms ease-out 350ms both;
 }
 
-.start-btn:hover, .start-btn:active {
-  background: var(--accent-hover);
+.start-btn:active {
+  transform: scale(0.96);
+  box-shadow: 0 2px 12px rgba(107, 138, 253, 0.15);
 }
 
 .instructions {
-  color: var(--text-secondary);
-  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  animation: startFadeIn 500ms ease-out 400ms both;
 }
 
 .instructions .hint {
   margin-top: 0.25rem;
-  font-size: 0.75rem;
-  opacity: 0.7;
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
 }
 
-/* Game Screen */
+@keyframes startFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   Game Screen
+   ============================================ */
 .game-screen {
   padding: 0;
   background-color: var(--bg-primary);
-  transition: background-color 0.15s ease;
-}
-
-.game-screen.tapped {
-  background-color: #1e2a3a;
+  position: relative;
 }
 
 .game-header {
@@ -198,19 +280,32 @@ body {
 }
 
 .level-indicator {
-  font-size: 1.2rem;
-  font-weight: bold;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
 
 .pause-btn {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: none;
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  font-size: 1rem;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: transform var(--transition-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pause-btn:active {
+  transform: scale(0.9);
 }
 
 .game-content {
@@ -233,28 +328,35 @@ body {
   position: relative;
   width: 150px;
   height: 150px;
+  filter: drop-shadow(0 0 20px var(--accent-glow));
 }
 
 .progress-ring svg {
   transform: rotate(-90deg);
   width: 100%;
   height: 100%;
+  transition: transform 150ms ease;
+}
+
+.progress-ring.pulse svg {
+  transform: rotate(-90deg) scale(1.04);
 }
 
 .progress-bg {
   fill: none;
-  stroke: var(--bg-secondary);
-  stroke-width: 8;
+  stroke: var(--bg-elevated);
+  stroke-width: 6;
 }
 
 .progress-fill {
   fill: none;
   stroke: var(--accent);
-  stroke-width: 8;
+  stroke-width: 6;
   stroke-linecap: round;
   stroke-dasharray: 283;
   stroke-dashoffset: 283;
-  transition: stroke-dashoffset 0.3s;
+  transition: stroke-dashoffset 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 0 6px var(--accent-glow));
 }
 
 .trial-counter {
@@ -262,8 +364,11 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
 }
 
 .game-footer {
@@ -273,58 +378,187 @@ body {
 }
 
 .game-hint {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
+  color: var(--text-tertiary);
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
 }
 
-/* Paused Overlay */
+/* Tap ripple feedback */
+.tap-ripple {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: tapPulse 500ms ease-out forwards;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes tapPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3);
+    opacity: 0;
+  }
+}
+
+/* ============================================
+   Paused Overlay
+   ============================================ */
 .paused-overlay {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(15, 17, 23, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10;
+  animation: overlayFadeIn 300ms ease-out;
+}
+
+.paused-overlay.exiting {
+  animation: overlayFadeOut 200ms ease-in forwards;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes overlayFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 .paused-message {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pause-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+  animation: pauseIconIn 400ms ease-out 100ms both;
+}
+
+.pause-icon .bar {
+  width: 6px;
+  height: 28px;
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+@keyframes pauseIconIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .paused-message h2 {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  animation: pauseTextIn 400ms ease-out 200ms both;
+}
+
+@keyframes pauseTextIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .resume-btn {
   background: var(--accent);
-  color: white;
+  color: #fff;
   border: none;
-  padding: 1rem 2rem;
-  font-size: 1.1rem;
-  border-radius: 8px;
+  padding: 0.9rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
   cursor: pointer;
   display: block;
   width: 200px;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 4px 24px rgba(107, 138, 253, 0.3);
+  transition: transform var(--transition-fast) ease,
+              box-shadow var(--transition-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+  animation: pauseBtnIn 400ms ease-out 300ms both;
+}
+
+.resume-btn:active {
+  transform: scale(0.96);
+  box-shadow: 0 2px 12px rgba(107, 138, 253, 0.2);
 }
 
 .paused-message .exit-btn {
   background: transparent;
   color: var(--text-secondary);
-  border: 1px solid var(--text-secondary);
-  padding: 0.75rem 2rem;
-  font-size: 1rem;
-  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  padding: 0.7rem 2rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 12px;
   cursor: pointer;
   display: block;
   width: 200px;
+  transition: transform var(--transition-fast) ease,
+              background var(--transition-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+  animation: pauseBtnIn 400ms ease-out 400ms both;
 }
 
-/* Results Screen */
+.paused-message .exit-btn:active {
+  transform: scale(0.96);
+  background: var(--bg-elevated);
+}
+
+@keyframes pauseBtnIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   Results Screen
+   ============================================ */
 .results-screen {
   justify-content: center;
   align-items: center;
@@ -332,28 +566,43 @@ body {
 }
 
 .results-screen h2 {
-  font-size: 1.4rem;
-  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  animation: resultFadeIn 500ms ease-out 0ms both;
 }
 
 .accuracy-display {
   margin-bottom: 0.5rem;
+  animation: resultFadeIn 500ms ease-out 100ms both;
 }
 
 .accuracy-value {
-  font-size: 3rem;
-  font-weight: bold;
+  font-size: 4rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
   display: block;
 }
 
 .accuracy-label {
-  color: var(--text-secondary);
-  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 0.25rem;
 }
 
 .level-change {
-  margin-bottom: 1.25rem;
-  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  animation: resultFadeIn 500ms ease-out 200ms both;
 }
 
 .level-up {
@@ -371,21 +620,31 @@ body {
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.6rem;
-  margin-bottom: 1.25rem;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
   width: 100%;
   max-width: 280px;
 }
 
 .stat {
-  background: var(--bg-secondary);
-  padding: 0.6rem;
-  border-radius: 8px;
+  background: var(--bg-elevated);
+  padding: 0.75rem 0.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
+.stat:nth-child(1) { animation: resultFadeIn 400ms ease-out 250ms both; }
+.stat:nth-child(2) { animation: resultFadeIn 400ms ease-out 300ms both; }
+.stat:nth-child(3) { animation: resultFadeIn 400ms ease-out 350ms both; }
+.stat:nth-child(4) { animation: resultFadeIn 400ms ease-out 400ms both; }
+
 .stat-value {
-  font-size: 1.3rem;
-  font-weight: bold;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
   display: block;
 }
 
@@ -406,45 +665,68 @@ body {
 }
 
 .stat-label {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
 }
 
 .results-actions {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.5rem;
   width: 100%;
   max-width: 280px;
+  animation: resultFadeIn 400ms ease-out 500ms both;
 }
 
 .continue-btn {
   background: var(--accent);
-  color: white;
+  color: #fff;
   border: none;
-  padding: 0.75rem;
+  padding: 0.85rem;
   font-size: 1rem;
-  border-radius: 8px;
+  font-weight: 600;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background 0.2s;
+  box-shadow: 0 4px 24px rgba(107, 138, 253, 0.25);
+  transition: transform var(--transition-fast) ease,
+              box-shadow var(--transition-fast) ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.continue-btn:hover, .continue-btn:active {
-  background: var(--accent-hover);
+.continue-btn:active {
+  transform: scale(0.96);
+  box-shadow: 0 2px 12px rgba(107, 138, 253, 0.15);
 }
 
 .end-btn {
   background: transparent;
   color: var(--text-secondary);
-  border: 1px solid var(--text-secondary);
+  border: 1px solid var(--border-subtle);
   padding: 0.65rem;
   font-size: 0.9rem;
-  border-radius: 8px;
+  font-weight: 500;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform var(--transition-fast) ease,
+              background var(--transition-fast) ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.end-btn:hover, .end-btn:active {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+.end-btn:active {
+  transform: scale(0.96);
+  background: var(--bg-elevated);
+}
+
+@keyframes resultFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

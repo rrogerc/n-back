@@ -31,12 +31,14 @@ export class ResultsScreen {
       levelMessage = `<span class="level-same">Staying at ${this.nextLevel}-back</span>`;
     }
 
+    const accuracyColor = accuracy >= 85 ? 'var(--success)' : accuracy >= 70 ? 'var(--accent)' : 'var(--error)';
+
     return `
       <div class="screen results-screen">
         <h2>Block Complete</h2>
 
         <div class="accuracy-display">
-          <span class="accuracy-value">${accuracy}%</span>
+          <span class="accuracy-value" style="color: ${accuracyColor}">${accuracy}%</span>
           <span class="accuracy-label">Accuracy</span>
         </div>
 

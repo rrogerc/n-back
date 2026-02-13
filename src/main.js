@@ -21,6 +21,7 @@ class App {
     this.gameScreen = null;
     this.audioUnlocked = false;
     this.currentTrialCount = 20;
+    this.wakeLock = null;
   }
 
   /**
@@ -83,6 +84,9 @@ class App {
       this.audioUnlocked = true;
     }
 
+    // Keep screen awake during gameplay
+    await this.acquireWakeLock();
+
     // Create game engine
     this.gameEngine = new GameEngine(this.audioManager, this.inputManager);
 
@@ -117,8 +121,9 @@ class App {
     // Start the block
     const result = await this.gameEngine.startBlock(n, trialCount);
 
-    // Clean up tap feedback listener
+    // Clean up tap feedback listener and wake lock
     this.inputManager.off('press', this._tapFeedbackHandler);
+    this.releaseWakeLock();
 
     if (result) {
       // Save session
@@ -153,6 +158,7 @@ class App {
     if (this.gameEngine) {
       this.gameEngine.stop();
     }
+    this.releaseWakeLock();
     this.showStartScreen();
   }
 
@@ -177,6 +183,31 @@ class App {
     });
 
     this.renderer.render(resultsScreen);
+  }
+
+  /**
+   * Acquire a screen wake lock to prevent the display from sleeping
+   */
+  async acquireWakeLock() {
+    if (!('wakeLock' in navigator)) return;
+    try {
+      this.wakeLock = await navigator.wakeLock.request('screen');
+      this.wakeLock.addEventListener('release', () => {
+        this.wakeLock = null;
+      });
+    } catch (err) {
+      console.warn('Wake lock failed:', err);
+    }
+  }
+
+  /**
+   * Release the screen wake lock
+   */
+  releaseWakeLock() {
+    if (this.wakeLock) {
+      this.wakeLock.release();
+      this.wakeLock = null;
+    }
   }
 }
 

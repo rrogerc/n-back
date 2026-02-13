@@ -38,13 +38,11 @@ class App {
     // Initialize input manager
     this.inputManager.init();
 
-    // Start audio preloading immediately in the background.
-    // This creates the AudioContext + silentAudio element synchronously,
-    // then fetches/decodes all MP3 buffers async. By the time the user
-    // taps "Start", audio is likely already loaded.
-    this.audioInitPromise = this.audioManager.init().catch(err =>
-      console.warn('Audio preload error:', err)
-    );
+    // Set up audio context and elements (sync, no preloading yet).
+    // Preloading happens after unlock() in startGame() so the
+    // AudioContext is running — iOS silently fails decodeAudioData
+    // on a suspended context.
+    this.audioManager.init();
 
     // Show start screen
     await this.showStartScreen();
@@ -114,9 +112,9 @@ class App {
     };
     this.inputManager.on('press', this._tapFeedbackHandler);
 
-    // Wait for audio preload to finish before starting trials.
-    // Usually already done by the time user taps start.
-    await this.audioInitPromise;
+    // Preload audio buffers (no-op if already loaded).
+    // Must happen after unlock() so the AudioContext is running.
+    await this.audioManager.preload();
 
     // Start the block
     const result = await this.gameEngine.startBlock(n, trialCount);

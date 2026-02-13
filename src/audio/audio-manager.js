@@ -15,24 +15,26 @@ export class AudioManager {
 
   /**
    * Initialize the audio system - create AudioContext and set up elements.
-   * Starts preloading audio files in the background.
-   * Call this early (on app init), not on user gesture.
+   * This is sync and safe to call on page load (no user gesture needed).
+   * Audio files are NOT preloaded here — call preload() after unlock().
    */
-  async init() {
-    // Create AudioContext (will be in suspended state until user gesture)
+  init() {
     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-    // Create a gain node for volume control
     this.gainNode = this.audioContext.createGain();
     this.gainNode.connect(this.audioContext.destination);
 
-    // Set up silent audio element BEFORE preloading so unlock() can use it immediately
     this.silentAudio = new Audio(`${this.base}audio/silent-loop.mp3`);
     this.silentAudio.loop = true;
-    this.silentAudio.volume = 0.01; // Nearly silent but keeps session alive
-    this.silentAudio.playsInline = true; // Required for iOS
+    this.silentAudio.volume = 0.01;
+    this.silentAudio.playsInline = true;
+  }
 
-    // Preload all audio files (this is the slow part)
+  /**
+   * Preload all audio files. Call after unlock() so the AudioContext is running.
+   * No-op if buffers are already loaded.
+   */
+  async preload() {
+    if (this.buffers.size > 0) return;
     await this.preloadAudio();
   }
 

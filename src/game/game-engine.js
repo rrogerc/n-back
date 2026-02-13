@@ -122,15 +122,12 @@ export class GameEngine extends EventTarget {
     // Score the trial
     this.scorer.recordTrial(this.userPressed, isMatch);
 
-    // Play feedback sound
-    if (isMatch && this.userPressed) {
-      this.audioManager.play('hit');
-    } else if (isMatch && !this.userPressed) {
+    // Play feedback sound only on incorrect responses
+    if (isMatch && !this.userPressed) {
       this.audioManager.play('miss');
     } else if (!isMatch && this.userPressed) {
       this.audioManager.play('false-alarm');
     }
-    // No sound for correct rejection (silence is golden)
 
     // Emit trial end event
     this.dispatchEvent(new CustomEvent('trialEnd', {

@@ -65,6 +65,7 @@ export class GameEngine extends EventTarget {
     }
 
     // Clean up
+    this.inputManager.disable();
     this.inputManager.off('press', this._onPress);
 
     if (this.state !== 'idle') {
@@ -182,6 +183,7 @@ export class GameEngine extends EventTarget {
    */
   stop() {
     this.state = 'idle';
+    this.inputManager.disable();
     this.inputManager.off('press', this._onPress);
     if (this.trialTimeout) {
       clearTimeout(this.trialTimeout);

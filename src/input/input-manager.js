@@ -7,7 +7,7 @@ export class InputManager extends EventTarget {
     this.lastInputTime = 0;
     this.debounceMs = 200; // Prevent double-triggers
     this.gamepadPollingId = null;
-    this.enabled = true;
+    this.enabled = false; // Only enabled during active gameplay
   }
 
   /**

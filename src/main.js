@@ -99,7 +99,16 @@ class App {
     // Listen for game events
     this.gameEngine.addEventListener('trialStart', (e) => {
       this.gameScreen.updateProgress(e.detail.trialIndex, e.detail.totalTrials);
+      this.gameScreen.resetTapFeedback();
     });
+
+    // Show tap feedback when user presses during gameplay
+    this._tapFeedbackHandler = () => {
+      if (this.gameEngine && this.gameEngine.getState() === 'playing') {
+        this.gameScreen.showTapFeedback();
+      }
+    };
+    this.inputManager.on('press', this._tapFeedbackHandler);
 
     // Wait for audio preload to finish before starting trials.
     // Usually already done by the time user taps start.
@@ -107,6 +116,9 @@ class App {
 
     // Start the block
     const result = await this.gameEngine.startBlock(n, trialCount);
+
+    // Clean up tap feedback listener
+    this.inputManager.off('press', this._tapFeedbackHandler);
 
     if (result) {
       // Save session

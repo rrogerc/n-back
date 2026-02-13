@@ -10,6 +10,7 @@ export class AudioManager {
     this.silentAudio = null;
     this.unlocked = false;
     this.gainNode = null;
+    this.base = import.meta.env.BASE_URL;
   }
 
   /**
@@ -26,7 +27,7 @@ export class AudioManager {
     this.gainNode.connect(this.audioContext.destination);
 
     // Set up silent audio element BEFORE preloading so unlock() can use it immediately
-    this.silentAudio = new Audio('/audio/silent-loop.mp3');
+    this.silentAudio = new Audio(`${this.base}audio/silent-loop.mp3`);
     this.silentAudio.loop = true;
     this.silentAudio.volume = 0.01; // Nearly silent but keeps session alive
     this.silentAudio.playsInline = true; // Required for iOS
@@ -43,14 +44,14 @@ export class AudioManager {
       // Letter audio files
       ...LETTERS.map(letter => ({
         name: `letter-${letter.toLowerCase()}`,
-        path: `/audio/letters/${letter.toLowerCase()}.mp3`
+        path: `${this.base}audio/letters/${letter.toLowerCase()}.mp3`
       })),
       // Feedback audio files
-      { name: 'hit', path: '/audio/feedback/hit.mp3' },
-      { name: 'miss', path: '/audio/feedback/miss.mp3' },
-      { name: 'false-alarm', path: '/audio/feedback/false-alarm.mp3' },
-      { name: 'block-complete', path: '/audio/feedback/block-complete.mp3' },
-      { name: 'level-up', path: '/audio/feedback/level-up.mp3' }
+      { name: 'hit', path: `${this.base}audio/feedback/hit.mp3` },
+      { name: 'miss', path: `${this.base}audio/feedback/miss.mp3` },
+      { name: 'false-alarm', path: `${this.base}audio/feedback/false-alarm.mp3` },
+      { name: 'block-complete', path: `${this.base}audio/feedback/block-complete.mp3` },
+      { name: 'level-up', path: `${this.base}audio/feedback/level-up.mp3` }
     ];
 
     const loadPromises = audioFiles.map(async ({ name, path }) => {
@@ -169,8 +170,8 @@ export class AudioManager {
       artist: 'Audio N-Back',
       album: 'Working Memory Training',
       artwork: [
-        { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-        { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' }
+        { src: `${this.base}icons/icon-192.png`, sizes: '192x192', type: 'image/png' },
+        { src: `${this.base}icons/icon-512.png`, sizes: '512x512', type: 'image/png' }
       ]
     });
 

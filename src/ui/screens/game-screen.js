@@ -119,4 +119,20 @@ export class GameScreen {
       overlay.remove();
     }
   }
+
+  /**
+   * Show visual feedback that a tap was registered
+   */
+  showTapFeedback() {
+    const screen = document.querySelector('.game-screen');
+    if (screen) screen.classList.add('tapped');
+  }
+
+  /**
+   * Reset tap feedback for the next trial
+   */
+  resetTapFeedback() {
+    const screen = document.querySelector('.game-screen');
+    if (screen) screen.classList.remove('tapped');
+  }
 }

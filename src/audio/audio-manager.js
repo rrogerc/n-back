@@ -13,7 +13,9 @@ export class AudioManager {
   }
 
   /**
-   * Initialize the audio system - create AudioContext and preload audio files
+   * Initialize the audio system - create AudioContext and set up elements.
+   * Starts preloading audio files in the background.
+   * Call this early (on app init), not on user gesture.
    */
   async init() {
     // Create AudioContext (will be in suspended state until user gesture)
@@ -23,15 +25,14 @@ export class AudioManager {
     this.gainNode = this.audioContext.createGain();
     this.gainNode.connect(this.audioContext.destination);
 
-    // Preload all audio files
-    await this.preloadAudio();
-
-    // Set up silent audio element for keeping audio session alive on iOS
-    // This uses HTML5 Audio which is necessary for iOS background audio
+    // Set up silent audio element BEFORE preloading so unlock() can use it immediately
     this.silentAudio = new Audio('/audio/silent-loop.mp3');
     this.silentAudio.loop = true;
     this.silentAudio.volume = 0.01; // Nearly silent but keeps session alive
     this.silentAudio.playsInline = true; // Required for iOS
+
+    // Preload all audio files (this is the slow part)
+    await this.preloadAudio();
   }
 
   /**

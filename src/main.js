@@ -37,6 +37,14 @@ class App {
     // Initialize input manager
     this.inputManager.init();
 
+    // Start audio preloading immediately in the background.
+    // This creates the AudioContext + silentAudio element synchronously,
+    // then fetches/decodes all MP3 buffers async. By the time the user
+    // taps "Start", audio is likely already loaded.
+    this.audioInitPromise = this.audioManager.init().catch(err =>
+      console.warn('Audio preload error:', err)
+    );
+
     // Show start screen
     await this.showStartScreen();
 
@@ -74,9 +82,10 @@ class App {
    * @param {number} trialCount - Number of trials
    */
   async startGame(n, trialCount = 20) {
-    // Unlock audio on first user interaction
+    // Unlock audio on first user interaction (must happen in gesture context).
+    // AudioContext + silentAudio were created synchronously when init() started,
+    // so unlock() can use them immediately without waiting for preload.
     if (!this.audioUnlocked) {
-      await this.audioManager.init();
       await this.audioManager.unlock();
       this.audioManager.setupMediaSession();
       this.audioUnlocked = true;
@@ -85,7 +94,7 @@ class App {
     // Create game engine
     this.gameEngine = new GameEngine(this.audioManager, this.inputManager);
 
-    // Show game screen
+    // Show game screen IMMEDIATELY — don't block on audio preload
     this.gameScreen = new GameScreen({
       n: n,
       totalTrials: trialCount,
@@ -99,6 +108,10 @@ class App {
     this.gameEngine.addEventListener('trialStart', (e) => {
       this.gameScreen.updateProgress(e.detail.trialIndex, e.detail.totalTrials);
     });
+
+    // Wait for audio preload to finish before starting trials.
+    // Usually already done by the time user taps start.
+    await this.audioInitPromise;
 
     // Start the block
     const result = await this.gameEngine.startBlock(n, trialCount);

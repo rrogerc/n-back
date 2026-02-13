@@ -39,6 +39,14 @@ export class InputManager extends EventTarget {
   handleInput(event) {
     if (!this.enabled) return;
 
+    // Don't intercept events targeting interactive elements (buttons, inputs, etc.)
+    // This prevents the game tap handler from swallowing button clicks and
+    // avoids preventDefault() on touchstart which kills subsequent click events.
+    const target = event.target;
+    if (target && target.closest('button, input, select, textarea, a, [role="button"]')) {
+      return;
+    }
+
     const now = Date.now();
     if (now - this.lastInputTime < this.debounceMs) {
       return; // Debounce

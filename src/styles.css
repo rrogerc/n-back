@@ -53,9 +53,18 @@ body {
 
 /* Start Screen */
 .start-screen {
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   text-align: center;
+  overflow-y: auto;
+}
+
+.start-screen h1 {
+  margin-top: auto;
+}
+
+.start-screen .instructions {
+  margin-bottom: auto;
 }
 
 .start-screen h1 {
@@ -321,9 +330,18 @@ body {
 
 /* Results Screen */
 .results-screen {
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   text-align: center;
+  overflow-y: auto;
+}
+
+.results-screen h2 {
+  margin-top: auto;
+}
+
+.results-screen .results-actions {
+  margin-bottom: auto;
 }
 
 .results-screen h2 {

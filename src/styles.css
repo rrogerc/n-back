@@ -35,6 +35,7 @@ body {
 
 #app {
   height: 100%;
+  height: 100dvh; /* actual visible viewport — fixes iOS standalone mode */
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -42,7 +43,8 @@ body {
 
 /* Screen base */
 .screen {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   width: 100%;
   display: flex;
   flex-direction: column;

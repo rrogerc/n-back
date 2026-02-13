@@ -48,14 +48,6 @@ class App {
     // Show start screen
     await this.showStartScreen();
 
-    // Register service worker for PWA
-    if ('serviceWorker' in navigator) {
-      try {
-        await navigator.serviceWorker.register('/sw.js');
-      } catch (error) {
-        console.log('Service worker registration failed:', error);
-      }
-    }
   }
 
   /**

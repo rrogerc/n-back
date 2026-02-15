@@ -1,4 +1,5 @@
 import { generateSequence } from './sequence-generator.js';
+import { BLOCK } from '../utils/constants.js';
 
 function runTests() {
   let passed = 0;
@@ -14,8 +15,8 @@ function runTests() {
     failed++;
   }
 
-  // Test 2: Match count scales with trial count (~30% of eligible positions)
-  const expectedMatches = Math.round((22 - 2) * 0.3); // 6
+  // Test 2: Match count scales with trial count (~20% of eligible positions)
+  const expectedMatches = Math.round((22 - 2) * BLOCK.MATCH_RATE);
   if (seq.matchPositions.length === expectedMatches) {
     console.log(`Test 2 PASS: Has ${seq.matchPositions.length} matches (expected ${expectedMatches})`);
     passed++;
@@ -70,7 +71,7 @@ function runTests() {
 
   // Test 6: Match count scales for large trial counts (100 trials, 3-back)
   const seq100 = generateSequence(3, 100);
-  const expected100 = Math.round((100 - 3) * 0.3); // 29
+  const expected100 = Math.round((100 - 3) * BLOCK.MATCH_RATE);
   if (seq100.matchPositions.length === expected100) {
     console.log(`Test 6 PASS: 100-trial 3-back has ${seq100.matchPositions.length} matches (expected ${expected100})`);
     passed++;

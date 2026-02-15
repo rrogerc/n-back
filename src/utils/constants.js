@@ -7,7 +7,7 @@ export const TIMING = {
 
 export const BLOCK = {
   BASE_TRIALS: 20,     // Base number of trials per block
-  MATCH_RATE: 0.3      // Target ~30% of eligible positions are matches (Jaeggi protocol)
+  MATCH_RATE: 0.2      // Target ~20% of eligible positions are matches
 };
 
 export const ADAPTIVE = {

@@ -4,19 +4,19 @@ import { LETTERS, BLOCK } from '../utils/constants.js';
  * Generate an n-back sequence with guaranteed matches
  * @param {number} n - The n-back level
  * @param {number} totalTrials - Total number of trials
- * @param {number} guaranteedMatches - Number of guaranteed matches (default 6)
+ * @param {number} matchRate - Fraction of eligible positions that are matches (default ~30%)
  * @returns {{ letters: string[], matchPositions: number[], n: number, totalTrials: number }}
  */
-export function generateSequence(n, totalTrials = 20, guaranteedMatches = BLOCK.GUARANTEED_MATCHES) {
+export function generateSequence(n, totalTrials = 20, matchRate = BLOCK.MATCH_RATE) {
   // Ensure we have at least n+1 trials
   totalTrials = Math.max(totalTrials, n + 1);
 
   const letters = new Array(totalTrials).fill(null);
   const matchPositions = [];
 
-  // Adjust guaranteed matches if we have fewer trials
+  // Scale match count with trial count (~30% of eligible positions)
   const maxPossibleMatches = totalTrials - n;
-  const actualGuaranteedMatches = Math.min(guaranteedMatches, Math.floor(maxPossibleMatches * 0.3));
+  const actualGuaranteedMatches = Math.max(1, Math.round(maxPossibleMatches * matchRate));
 
   // Step 1: Randomly select positions for guaranteed matches (must be >= n)
   const possibleMatchPositions = [];

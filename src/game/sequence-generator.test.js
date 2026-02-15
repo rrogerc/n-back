@@ -14,12 +14,13 @@ function runTests() {
     failed++;
   }
 
-  // Test 2: Has some matches (about 30% of possible positions)
-  if (seq.matchPositions.length > 0) {
-    console.log(`Test 2 PASS: Has ${seq.matchPositions.length} matches`);
+  // Test 2: Match count scales with trial count (~30% of eligible positions)
+  const expectedMatches = Math.round((22 - 2) * 0.3); // 6
+  if (seq.matchPositions.length === expectedMatches) {
+    console.log(`Test 2 PASS: Has ${seq.matchPositions.length} matches (expected ${expectedMatches})`);
     passed++;
   } else {
-    console.log(`Test 2 FAIL: Expected some matches, got ${seq.matchPositions.length}`);
+    console.log(`Test 2 FAIL: Expected ${expectedMatches} matches, got ${seq.matchPositions.length}`);
     failed++;
   }
 
@@ -64,6 +65,17 @@ function runTests() {
     passed++;
   } else {
     console.log(`Test 5 FAIL: Expected 10 trials, got ${seq10.totalTrials}`);
+    failed++;
+  }
+
+  // Test 6: Match count scales for large trial counts (100 trials, 3-back)
+  const seq100 = generateSequence(3, 100);
+  const expected100 = Math.round((100 - 3) * 0.3); // 29
+  if (seq100.matchPositions.length === expected100) {
+    console.log(`Test 6 PASS: 100-trial 3-back has ${seq100.matchPositions.length} matches (expected ${expected100})`);
+    passed++;
+  } else {
+    console.log(`Test 6 FAIL: Expected ${expected100} matches for 100 trials, got ${seq100.matchPositions.length}`);
     failed++;
   }
 

@@ -1,3 +1,5 @@
+import { TIMING } from '../../utils/constants.js';
+
 /**
  * Game screen - minimal visual with progress indicator
  * The entire screen acts as a tap zone
@@ -16,6 +18,17 @@ export class GameScreen {
     this.currentTrial = 0;
     this.onPause = onPause;
     this.onExit = onExit;
+
+    // Timer state
+    this._timerStart = 0;
+    this._pausedDuration = 0;
+    this._trialStart = 0;
+    this._trialPausedDuration = 0;
+    this._lastElapsed = 0;
+    this._lastTrialElapsed = 0;
+    this._rafId = null;
+    this._timerRunning = false;
+    this._hideTimeout = null;
   }
 
   render() {
@@ -33,12 +46,19 @@ export class GameScreen {
 
         <div class="game-content">
           <div class="tap-zone">
-            <div class="progress-ring">
-              <svg viewBox="0 0 100 100">
-                <circle class="progress-bg" cx="50" cy="50" r="45" />
-                <circle class="progress-fill" id="progress-circle" cx="50" cy="50" r="45" />
-              </svg>
-              <span class="trial-counter" id="trial-counter">0/${this.totalTrials}</span>
+            <div class="game-center">
+              <span class="game-timer" id="game-timer">00:00.00</span>
+              <div class="progress-ring">
+                <svg viewBox="0 0 100 100">
+                  <circle class="progress-bg" cx="50" cy="50" r="45" />
+                  <circle class="trial-arc" id="trial-arc" cx="50" cy="50" r="49" />
+                  <circle class="progress-fill" id="progress-circle" cx="50" cy="50" r="45" />
+                </svg>
+                <div class="spinner-orbit" id="spinner-orbit">
+                  <div class="spinner-dot"></div>
+                </div>
+                <span class="trial-counter" id="trial-counter">0/${this.totalTrials}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -90,13 +110,106 @@ export class GameScreen {
     }
   }
 
+  // ── Timer & trial arc ──────────────────────────
+
+  startTimer() {
+    this._timerStart = Date.now();
+    this._pausedDuration = 0;
+    this._lastElapsed = 0;
+    this._lastTrialElapsed = 0;
+    this._timerRunning = true;
+    this._tick();
+  }
+
+  pauseTimer() {
+    this._timerRunning = false;
+    if (this._rafId) {
+      cancelAnimationFrame(this._rafId);
+      this._rafId = null;
+    }
+  }
+
+  resumeTimer() {
+    // Restore start times from the last displayed values so the timer
+    // picks up exactly where the screen froze — no drift from the gap
+    // between the last rAF frame and when pauseTimer() was called.
+    const now = Date.now();
+    this._timerStart = now - this._lastElapsed;
+    this._trialStart = now - this._lastTrialElapsed;
+    this._pausedDuration = 0;
+    this._trialPausedDuration = 0;
+    this._timerRunning = true;
+    this._tick();
+  }
+
+  stopTimer() {
+    this._timerRunning = false;
+    if (this._rafId) {
+      cancelAnimationFrame(this._rafId);
+      this._rafId = null;
+    }
+  }
+
+  resetTrialArc() {
+    this._trialStart = Date.now();
+    this._trialPausedDuration = 0;
+    this._lastTrialElapsed = 0;
+  }
+
+  _tick() {
+    if (!this._timerRunning) return;
+    const now = Date.now();
+    this._lastElapsed = now - this._timerStart - this._pausedDuration;
+    this._lastTrialElapsed = now - this._trialStart - this._trialPausedDuration;
+    this._updateTimerDisplay();
+    this._updateTrialArc();
+    this._rafId = requestAnimationFrame(() => this._tick());
+  }
+
+  _updateTimerDisplay() {
+    const ms = Math.max(0, this._lastElapsed);
+    const mins = Math.floor(ms / 60000);
+    const secs = Math.floor((ms % 60000) / 1000);
+    const cs = Math.floor((ms % 1000) / 10);
+
+    const el = document.getElementById('game-timer');
+    if (el) {
+      el.textContent =
+        `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}.${String(cs).padStart(2, '0')}`;
+    }
+  }
+
+  _updateTrialArc() {
+    const progress = Math.min(1, Math.max(0, this._lastTrialElapsed / TIMING.ISI));
+    const circumference = 2 * Math.PI * 49;
+
+    const arc = document.getElementById('trial-arc');
+    if (arc) {
+      arc.style.strokeDashoffset = circumference * (1 - progress);
+    }
+
+    const orbit = document.getElementById('spinner-orbit');
+    if (orbit) {
+      orbit.style.transform = `rotate(${progress * 360}deg)`;
+    }
+  }
+
+  cleanup() {
+    this.stopTimer();
+  }
+
+  // ── Pause overlay ──────────────────────────────
+
   /**
    * Show paused overlay with resume and exit options
    * @param {function} onResume - Callback when resume is pressed
    */
   showPaused(onResume) {
-    const content = document.querySelector('.game-content');
-    if (content) {
+    // Clean up any leftover overlay / pending hide timeout
+    this._cleanupOverlay();
+
+    const screen = document.querySelector('.game-screen');
+    if (screen) {
       const overlay = document.createElement('div');
       overlay.className = 'paused-overlay';
       overlay.id = 'paused-overlay';
@@ -111,20 +224,43 @@ export class GameScreen {
           <button class="exit-btn" id="exit-btn">Exit</button>
         </div>
       `;
-      content.appendChild(overlay);
+      // Prevent touch/click events from bubbling to the document-level
+      // InputManager handlers. Without this, the non-passive touchstart
+      // listener on document interferes with click generation on iOS PWA.
+      overlay.addEventListener('touchstart', (e) => e.stopPropagation());
+      overlay.addEventListener('click', (e) => e.stopPropagation());
 
-      document.getElementById('resume-btn').addEventListener('click', () => {
+      screen.appendChild(overlay);
+
+      // Attach listeners directly to the elements we just created,
+      // avoiding getElementById which can find stale duplicates.
+      const resumeBtn = overlay.querySelector('.resume-btn');
+      const exitBtn = overlay.querySelector('.exit-btn');
+
+      resumeBtn.addEventListener('click', () => {
         this.hidePaused(() => {
           if (onResume) onResume();
         });
       });
 
-      document.getElementById('exit-btn').addEventListener('click', () => {
+      exitBtn.addEventListener('click', () => {
         this.hidePaused(() => {
           if (this.onExit) this.onExit();
         });
       });
     }
+  }
+
+  /**
+   * Remove any existing overlay and clear pending hide timeout
+   */
+  _cleanupOverlay() {
+    if (this._hideTimeout) {
+      clearTimeout(this._hideTimeout);
+      this._hideTimeout = null;
+    }
+    const existing = document.getElementById('paused-overlay');
+    if (existing) existing.remove();
   }
 
   /**
@@ -135,17 +271,22 @@ export class GameScreen {
     const overlay = document.getElementById('paused-overlay');
     if (overlay) {
       overlay.classList.add('exiting');
+      let called = false;
       const done = () => {
+        if (called) return;
+        called = true;
+        this._hideTimeout = null;
         if (overlay.parentNode) overlay.remove();
         if (callback) callback();
       };
       overlay.addEventListener('animationend', done, { once: true });
-      // Fallback in case animationend doesn't fire
-      setTimeout(done, 250);
+      this._hideTimeout = setTimeout(done, 250);
     } else {
       if (callback) callback();
     }
   }
+
+  // ── Tap feedback ───────────────────────────────
 
   /**
    * Show visual feedback that a tap was registered
@@ -153,16 +294,15 @@ export class GameScreen {
   showTapFeedback() {
     const screen = document.querySelector('.game-screen');
     if (!screen) return;
-    const ripple = document.createElement('div');
-    ripple.className = 'tap-ripple';
-    screen.appendChild(ripple);
-    ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+    screen.classList.add('pressed');
   }
 
   /**
    * Reset tap feedback for the next trial
    */
   resetTapFeedback() {
-    // Ripples self-remove on animationend; nothing to reset
+    const screen = document.querySelector('.game-screen');
+    if (!screen) return;
+    screen.classList.remove('pressed');
   }
 }

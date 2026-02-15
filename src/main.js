@@ -102,6 +102,10 @@ class App {
     this.gameEngine.addEventListener('trialStart', (e) => {
       this.gameScreen.updateProgress(e.detail.trialIndex, e.detail.totalTrials);
       this.gameScreen.resetTapFeedback();
+      this.gameScreen.resetTrialArc();
+      if (e.detail.trialIndex === 0) {
+        this.gameScreen.startTimer();
+      }
     });
 
     // Show tap feedback when user presses during gameplay
@@ -112,6 +116,22 @@ class App {
     };
     this.inputManager.on('press', this._tapFeedbackHandler);
 
+    // Escape key toggles pause
+    this._escHandler = (e) => {
+      if (e.key === 'Escape' && this.gameEngine) {
+        const state = this.gameEngine.getState();
+        if (state === 'playing') {
+          this.pauseGame();
+        } else if (state === 'paused') {
+          this.gameScreen.hidePaused(() => {
+            this.gameScreen.resumeTimer();
+            this.gameEngine.resume();
+          });
+        }
+      }
+    };
+    document.addEventListener('keydown', this._escHandler);
+
     // Preload audio buffers (no-op if already loaded).
     // Must happen after unlock() so the AudioContext is running.
     await this.audioManager.preload();
@@ -119,8 +139,10 @@ class App {
     // Start the block
     const result = await this.gameEngine.startBlock(n, trialCount);
 
-    // Clean up tap feedback listener and wake lock
+    // Clean up listeners, timer, and wake lock
+    this.gameScreen.stopTimer();
     this.inputManager.off('press', this._tapFeedbackHandler);
+    document.removeEventListener('keydown', this._escHandler);
     this.releaseWakeLock();
 
     if (result) {
@@ -143,7 +165,9 @@ class App {
   pauseGame() {
     if (this.gameEngine) {
       this.gameEngine.pause();
+      this.gameScreen.pauseTimer();
       this.gameScreen.showPaused(() => {
+        this.gameScreen.resumeTimer();
         this.gameEngine.resume();
       });
     }

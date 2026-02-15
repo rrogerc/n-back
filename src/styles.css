@@ -324,18 +324,66 @@ body {
   justify-content: center;
 }
 
+.game-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.game-timer {
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-family: 'SF Mono', ui-monospace, 'Menlo', 'Monaco', 'Consolas', monospace;
+  color: var(--text-tertiary);
+  letter-spacing: 0.06em;
+}
+
 .progress-ring {
   position: relative;
   width: 150px;
   height: 150px;
   filter: drop-shadow(0 0 20px var(--accent-glow));
+  transition: filter 300ms ease;
 }
 
 .progress-ring svg {
   transform: rotate(-90deg);
   width: 100%;
   height: 100%;
+  overflow: visible;
   transition: transform 150ms ease;
+}
+
+.trial-arc {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 307.88;
+  stroke-dashoffset: 307.88;
+  opacity: 0.35;
+}
+
+.spinner-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.spinner-dot {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(107, 138, 253, 0.6), 0 0 14px rgba(107, 138, 253, 0.25);
+  top: -77px;
+  left: -3.5px;
 }
 
 .progress-ring.pulse svg {
@@ -383,30 +431,25 @@ body {
   letter-spacing: 0.02em;
 }
 
-/* Tap ripple feedback */
-.tap-ripple {
-  position: absolute;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  animation: tapPulse 500ms ease-out forwards;
-  pointer-events: none;
-  z-index: 1;
+/* Pressed state — held until next trial */
+.game-screen.pressed {
+  box-shadow: inset 0 0 120px rgba(107, 138, 253, 0.12);
+  transition: box-shadow 80ms ease-out;
 }
 
-@keyframes tapPulse {
-  0% {
-    transform: translate(-50%, -50%) scale(0);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(3);
-    opacity: 0;
-  }
+.game-screen:not(.pressed) {
+  transition: box-shadow 300ms ease-out;
+}
+
+.game-screen.pressed .progress-ring {
+  filter: drop-shadow(0 0 40px rgba(107, 138, 253, 0.6));
+  transition: filter 80ms ease-out;
+}
+
+.game-screen.pressed .progress-fill {
+  stroke: var(--accent-hover);
+  stroke-width: 7;
+  transition: stroke 80ms ease-out, stroke-width 80ms ease-out;
 }
 
 /* ============================================

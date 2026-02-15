@@ -103,7 +103,7 @@ export class StartScreen {
     });
 
     // Start button
-    startBtn.addEventListener('click', () => {
+    const doStart = () => {
       // Ensure valid trial count
       let trialCount = parseInt(trialInput.value, 10);
       if (isNaN(trialCount) || trialCount < 5) trialCount = 20;
@@ -112,6 +112,23 @@ export class StartScreen {
       if (this.onStart) {
         this.onStart(this.selectedN, trialCount);
       }
-    });
+    };
+
+    startBtn.addEventListener('click', doStart);
+
+    // Space/Enter to start (unless typing in an input)
+    this._keyHandler = (e) => {
+      if (e.code === 'Space' && document.activeElement !== trialInput) {
+        e.preventDefault();
+        doStart();
+      }
+    };
+    document.addEventListener('keydown', this._keyHandler);
+  }
+
+  cleanup() {
+    if (this._keyHandler) {
+      document.removeEventListener('keydown', this._keyHandler);
+    }
   }
 }

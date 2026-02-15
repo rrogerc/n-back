@@ -52,8 +52,10 @@ class App {
   /**
    * Show the start screen
    */
-  async showStartScreen() {
-    const lastN = await this.storage.getLastLevel();
+  async showStartScreen(overrideN) {
+    const settings = await this.storage.getSettings();
+    const lastN = overrideN ?? settings.lastN ?? await this.storage.getLastLevel();
+    this.currentTrialCount = settings.trialCount ?? this.currentTrialCount;
 
     const startScreen = new StartScreen({
       currentN: lastN,
@@ -73,6 +75,9 @@ class App {
    * @param {number} trialCount - Number of trials
    */
   async startGame(n, trialCount = 20) {
+    // Persist level and trial selections
+    this.storage.saveSettings({ lastN: n, trialCount });
+
     // Unlock audio on first user interaction (must happen in gesture context).
     // AudioContext + silentAudio were created synchronously when init() started,
     // so unlock() can use them immediately without waiting for preload.
@@ -146,13 +151,14 @@ class App {
     this.releaseWakeLock();
 
     if (result) {
-      // Save session
+      // Save session and update persisted level to the adaptive next level
       await this.storage.saveSession({
         n: n,
         trialCount: trialCount,
         ...result.results,
         nextLevel: result.nextLevel
       });
+      this.storage.saveSettings({ lastN: result.nextLevel, trialCount });
 
       // Show results screen
       await this.showResultsScreen(result.results, n, result.nextLevel, trialCount);
@@ -177,11 +183,12 @@ class App {
    * Exit the game (from pause menu)
    */
   exitGame() {
+    const currentN = this.gameScreen?.n;
     if (this.gameEngine) {
       this.gameEngine.stop();
     }
     this.releaseWakeLock();
-    this.showStartScreen();
+    this.showStartScreen(currentN);
   }
 
   /**

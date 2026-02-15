@@ -219,6 +219,29 @@ export class GameEngine extends EventTarget {
    * @returns {Promise<void>}
    */
   sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => {
+      let remaining = ms;
+      let lastTime = Date.now();
+
+      const tick = () => {
+        // Stopped — unblock immediately
+        if (this.state === 'idle') { resolve(); return; }
+
+        const now = Date.now();
+        // Only count time while playing
+        if (this.state !== 'paused') {
+          remaining -= (now - lastTime);
+        }
+        lastTime = now;
+
+        if (remaining <= 0) {
+          resolve();
+        } else {
+          setTimeout(tick, 32);
+        }
+      };
+
+      setTimeout(tick, 32);
+    });
   }
 }

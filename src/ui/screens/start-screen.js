@@ -49,7 +49,7 @@ export class StartScreen {
 
         <div class="trial-input-group">
           <label for="trial-count">Trials:</label>
-          <input type="number" id="trial-count" min="5" max="100" value="${this.selectedTrialCount}" />
+          <input type="number" id="trial-count" min="5" max="1000" value="${this.selectedTrialCount}" />
         </div>
 
         <p class="duration-estimate" id="duration-estimate">Duration: ~${duration}</p>
@@ -96,7 +96,7 @@ export class StartScreen {
     trialInput.addEventListener('input', () => {
       let value = parseInt(trialInput.value, 10);
       if (!isNaN(value)) {
-        value = Math.max(5, Math.min(100, value));
+        value = Math.max(5, Math.min(1000, value));
         this.selectedTrialCount = value;
         durationEstimate.textContent = `Duration: ~${this.getDurationText(value)}`;
       }
@@ -107,7 +107,7 @@ export class StartScreen {
       // Ensure valid trial count
       let trialCount = parseInt(trialInput.value, 10);
       if (isNaN(trialCount) || trialCount < 5) trialCount = 20;
-      trialCount = Math.min(100, trialCount);
+      trialCount = Math.min(1000, trialCount);
 
       if (this.onStart) {
         this.onStart(this.selectedN, trialCount);

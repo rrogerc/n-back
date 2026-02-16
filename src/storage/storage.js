@@ -124,13 +124,16 @@ export class Storage {
    * @returns {Promise<void>}
    */
   async saveSettings(settings) {
+    const existing = await this.getSettings();
+    const merged = { ...existing, ...settings };
+
     return new Promise((resolve, reject) => {
       const transaction = this.db.transaction([SETTINGS_STORE], 'readwrite');
       const store = transaction.objectStore(SETTINGS_STORE);
 
       const request = store.put({
         key: 'user-settings',
-        value: settings
+        value: merged
       });
 
       request.onsuccess = () => resolve();

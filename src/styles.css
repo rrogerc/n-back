@@ -97,6 +97,7 @@ body {
   justify-content: center;
   align-items: center;
   text-align: center;
+  position: relative;
 }
 
 .start-screen h1 {
@@ -772,4 +773,190 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ============================================
+   Settings
+   ============================================ */
+.settings-btn {
+  position: absolute;
+  top: max(20px, env(safe-area-inset-top));
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: transform var(--transition-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+  z-index: 5;
+}
+
+.settings-btn:active {
+  transform: scale(0.9);
+}
+
+.settings-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 17, 23, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  animation: overlayFadeIn 300ms ease-out;
+}
+
+.settings-overlay.exiting {
+  animation: overlayFadeOut 200ms ease-in forwards;
+}
+
+.settings-panel {
+  width: calc(100% - 48px);
+  max-width: 320px;
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  border: 1px solid var(--border-subtle);
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: settingsPanelIn 400ms ease-out 100ms both;
+}
+
+@keyframes settingsPanelIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.settings-header h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+}
+
+.settings-close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform var(--transition-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.settings-close-btn:active {
+  transform: scale(0.9);
+}
+
+.settings-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.settings-item:last-child {
+  border-bottom: none;
+}
+
+.settings-item-info {
+  flex: 1;
+  margin-right: 16px;
+}
+
+.settings-item-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.settings-item-description {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background var(--transition-fast) ease,
+              border-color var(--transition-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.toggle-switch.active {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform var(--transition-fast) ease;
+  pointer-events: none;
+}
+
+.toggle-switch.active .toggle-knob {
+  transform: translateX(20px);
+}
+
+.settings-version {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
 }

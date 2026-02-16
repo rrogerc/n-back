@@ -60,6 +60,7 @@ class App {
     const startScreen = new StartScreen({
       currentN: lastN,
       trialCount: this.currentTrialCount,
+      storage: this.storage,
       onStart: async (n, trialCount) => {
         this.currentTrialCount = trialCount;
         await this.startGame(n, trialCount);
@@ -90,8 +91,10 @@ class App {
     // Keep screen awake during gameplay
     await this.acquireWakeLock();
 
-    // Create game engine
+    // Create game engine and apply settings
     this.gameEngine = new GameEngine(this.audioManager, this.inputManager);
+    const settings = await this.storage.getSettings();
+    this.gameEngine.setFeedbackSoundsEnabled(settings.feedbackSoundsEnabled);
 
     // Show game screen IMMEDIATELY — don't block on audio preload
     this.gameScreen = new GameScreen({

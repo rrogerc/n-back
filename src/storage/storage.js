@@ -110,7 +110,8 @@ export class Storage {
       const request = store.get('user-settings');
 
       request.onsuccess = () => {
-        resolve(request.result?.value || this.getDefaultSettings());
+        const saved = request.result?.value || {};
+        resolve({ ...this.getDefaultSettings(), ...saved });
       };
 
       request.onerror = () => reject(request.error);
@@ -176,7 +177,9 @@ export class Storage {
     return {
       currentN: 2,
       soundEnabled: true,
-      vibrationEnabled: true
+      vibrationEnabled: true,
+      feedbackSoundsEnabled: true,
+      adaptiveDifficulty: true
     };
   }
 }

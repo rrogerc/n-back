@@ -23,6 +23,7 @@ export class GameEngine extends EventTarget {
     this.userPressed = false;
     this.trialTimeout = null;
     this.isiTimeout = null;
+    this.feedbackSoundsEnabled = true;
 
     this._onPress = this._onPress.bind(this);
   }
@@ -123,10 +124,12 @@ export class GameEngine extends EventTarget {
     this.scorer.recordTrial(this.userPressed, isMatch);
 
     // Play feedback sound only on incorrect responses
-    if (isMatch && !this.userPressed) {
-      this.audioManager.play('miss');
-    } else if (!isMatch && this.userPressed) {
-      this.audioManager.play('false-alarm');
+    if (this.feedbackSoundsEnabled) {
+      if (isMatch && !this.userPressed) {
+        this.audioManager.play('miss');
+      } else if (!isMatch && this.userPressed) {
+        this.audioManager.play('false-alarm');
+      }
     }
 
     // Emit trial end event
@@ -153,6 +156,14 @@ export class GameEngine extends EventTarget {
     if (this.state === 'playing') {
       this.userPressed = true;
     }
+  }
+
+  /**
+   * Set whether feedback sounds (miss/false-alarm) are enabled
+   * @param {boolean} enabled
+   */
+  setFeedbackSoundsEnabled(enabled) {
+    this.feedbackSoundsEnabled = enabled;
   }
 
   /**

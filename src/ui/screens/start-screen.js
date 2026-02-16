@@ -180,25 +180,6 @@ export class StartScreen {
             </button>
           </div>
 
-          <div class="settings-item">
-            <div class="settings-item-info">
-              <span class="settings-item-label">Vibration</span>
-              <span class="settings-item-description">Haptic feedback on responses</span>
-            </div>
-            <button class="toggle-switch ${settings.vibrationEnabled ? 'active' : ''}" data-key="vibrationEnabled" role="switch" aria-checked="${settings.vibrationEnabled}">
-              <span class="toggle-knob"></span>
-            </button>
-          </div>
-
-          <div class="settings-item">
-            <div class="settings-item-info">
-              <span class="settings-item-label">Adaptive Difficulty</span>
-              <span class="settings-item-description">Auto-adjust level based on performance</span>
-            </div>
-            <button class="toggle-switch ${settings.adaptiveDifficulty ? 'active' : ''}" data-key="adaptiveDifficulty" role="switch" aria-checked="${settings.adaptiveDifficulty}">
-              <span class="toggle-knob"></span>
-            </button>
-          </div>
         </div>
 
         <div class="settings-version">v1.0</div>

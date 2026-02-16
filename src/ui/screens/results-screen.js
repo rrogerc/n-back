@@ -7,19 +7,20 @@ export class ResultsScreen {
    * @param {object} options.results - Results from scorer
    * @param {number} options.currentN - Current N level
    * @param {number} options.nextLevel - Next N level
+   * @param {boolean} options.feedbackOff - Hide detailed stats
    * @param {function} options.onContinue - Callback when continue is pressed
    * @param {function} options.onEnd - Callback when end is pressed
    */
-  constructor({ results, currentN, nextLevel, onContinue, onEnd }) {
+  constructor({ results, currentN, nextLevel, feedbackOff = false, onContinue, onEnd }) {
     this.results = results;
     this.currentN = currentN;
     this.nextLevel = nextLevel;
+    this.feedbackOff = feedbackOff;
     this.onContinue = onContinue;
     this.onEnd = onEnd;
   }
 
   render() {
-    const accuracy = Math.round(this.results.accuracy * 100);
     const levelChange = this.nextLevel - this.currentN;
     let levelMessage = '';
 
@@ -31,6 +32,32 @@ export class ResultsScreen {
       levelMessage = `<span class="level-same">Staying at ${this.nextLevel}-back</span>`;
     }
 
+    if (this.feedbackOff) {
+      const totalTrials = this.results.hits + this.results.misses
+        + this.results.falseAlarms + this.results.correctRejections;
+
+      return `
+        <div class="screen results-screen">
+          <h2>Block Complete</h2>
+
+          <div class="completion-summary">
+            <span class="completion-count">${totalTrials}</span>
+            <span class="completion-label">Trials Completed</span>
+          </div>
+
+          <div class="level-change">
+            ${levelMessage}
+          </div>
+
+          <div class="results-actions">
+            <button class="continue-btn" id="continue-btn">Continue Training</button>
+            <button class="end-btn" id="end-btn">End Session</button>
+          </div>
+        </div>
+      `;
+    }
+
+    const accuracy = Math.round(this.results.accuracy * 100);
     const accuracyColor = accuracy >= 85 ? 'var(--success)' : accuracy >= 70 ? 'var(--accent)' : 'var(--error)';
 
     return `

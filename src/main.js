@@ -164,7 +164,8 @@ class App {
       this.storage.saveSettings({ lastN: result.nextLevel, trialCount });
 
       // Show results screen
-      await this.showResultsScreen(result.results, n, result.nextLevel, trialCount);
+      const feedbackOff = !settings.feedbackSoundsEnabled;
+      await this.showResultsScreen(result.results, n, result.nextLevel, trialCount, feedbackOff);
     }
   }
 
@@ -201,11 +202,12 @@ class App {
    * @param {number} nextLevel - Next N level
    * @param {number} trialCount - Number of trials used
    */
-  async showResultsScreen(results, currentN, nextLevel, trialCount) {
+  async showResultsScreen(results, currentN, nextLevel, trialCount, feedbackOff = false) {
     const resultsScreen = new ResultsScreen({
       results: results,
       currentN: currentN,
       nextLevel: nextLevel,
+      feedbackOff: feedbackOff,
       onContinue: async (n) => {
         await this.startGame(n, trialCount);
       },

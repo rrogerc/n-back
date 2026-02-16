@@ -619,6 +619,31 @@ body {
   animation: resultFadeIn 500ms ease-out 0ms both;
 }
 
+.completion-summary {
+  margin-bottom: 1rem;
+  animation: resultFadeIn 500ms ease-out 100ms both;
+}
+
+.completion-count {
+  font-size: 3.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  display: block;
+  color: var(--accent);
+}
+
+.completion-label {
+  color: var(--text-tertiary);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+  display: block;
+}
+
 .accuracy-display {
   margin-bottom: 0.5rem;
   animation: resultFadeIn 500ms ease-out 100ms both;
